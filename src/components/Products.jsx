@@ -19,8 +19,12 @@ const Products = ({ cat, filters, sort }) => {
   useEffect(() => {
     const getProducts = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/products");
-        console.log(res);
+        const res = await axios.get(
+          cat
+            ? `http://localhost:5000/api/products?category=${cat}`
+            : "http://localhost:5000/api/products"
+        );
+        setProducts(res.data);
       } catch (err) {
         console.log(err);
       }
@@ -28,11 +32,36 @@ const Products = ({ cat, filters, sort }) => {
     getProducts();
   }, [cat]);
 
+  useEffect(() => {
+    cat &&
+      setFilterdProducts(
+        products.filter((item) =>
+          Object.entries(filters).every(([key, value]) =>
+            item[key].includes(value)
+          )
+        )
+      );
+  }, [products, cat, filters]);
+
+  useEffect(() => {
+    if (sort === "newest") {
+      setFilterdProducts((prev) =>
+        [...prev].sort((a, b) => b.createdAt - a.createdAt)
+      );
+    } else if (sort === "asc") {
+      setFilterdProducts((prev) => [...prev].sort((a, b) => a.price - b.price));
+    } else if (sort === "desc") {
+      setFilterdProducts((prev) => [...prev].sort((a, b) => b.price - a.price));
+    }
+  }, [sort]);
+
   return (
     <Container>
-      {popularProducts.map((item) => (
-        <Product item={item} key={item.id} />
-      ))}
+      {cat
+        ? filterdProducts.map((item) => <Product item={item} key={item.id} />)
+        : products
+            .slice(0, 8)
+            .map((item) => <Product item={item} key={item.id} />)}
     </Container>
   );
 };

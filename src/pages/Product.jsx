@@ -1,9 +1,13 @@
 import { Add, Remove } from "@material-ui/icons";
+import { useState } from "react";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import styled from "styled-components";
 import Announcement from "../components/Announcement";
 import Footer from "../components/Footer";
 import Navbar from "../components/Navbar";
 import Newsletter from "../components/Newsletter";
+import { publicRequest } from "../requestMethods";
 import { mobile } from "../responsive";
 
 const Container = styled.div``;
@@ -79,7 +83,6 @@ const AmountContainer = styled.div`
   display: flex;
   align-items: center;
   font-weight: 700;
-
 `;
 
 const Amount = styled.span`
@@ -91,7 +94,6 @@ const Amount = styled.span`
   align-items: center;
   justify-content: center;
   margin: 0px 5px;
-
 `;
 
 const Button = styled.button`
@@ -104,54 +106,65 @@ const Button = styled.button`
   &:hover {
     background-color: #f8f4f4;
   }
-  
 `;
 
 const Product = () => {
+  const location = useLocation();
+  const id = location.pathname.split("/")[2];
+  const [product, setProduct] = useState({});
+  const [quantity, setQuantity] = useState(1);
+
+  useEffect(() => {
+    const getProduct = async () => {
+      try {
+        const res = await publicRequest.get("/products/find/" + id);
+        setProduct(res.data);
+      } catch (err) {}
+    };
+    getProduct();
+  }, [id]);
+
+  const handleQuantity = (type) => {
+    if (type === "decrease") {
+      quantity > 1 && setQuantity(quantity - 1);
+    } else {
+      setQuantity(quantity + 1);
+    }
+  };
+
   return (
     <Container>
       <Navbar />
       <Announcement />
       <Wrapper>
         <ImageContainer>
-          <Image
-            src="https://www.kindpng.com/picc/m/91-911476_jag-denim-jacket-for-women-hd-png-download.png"
-            alt="Jag Denim Jacket For Women, HD Png Download@kindpng.com"
-          />
+          <Image src={product.img} />
         </ImageContainer>
         <InfoContainer>
-          <Title>Denim Jumpsuit</Title>
-          <Desc>
-            Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam
-            voluptas, quae, quod, voluptates quibusdam voluptatibus
-            necessitatibus quia voluptatum quidem quos natus. Quisquam voluptas,
-            quae, quod, voluptates quibusdam voluptatibus necessitatibus quia
-            voluptatum quidem quos natus.
-          </Desc>
-          <Price>$ 20</Price>
+          <Title>{product.title}</Title>
+          <Desc>{product.desc}</Desc>
+          <Price>$ {product.price}</Price>
           <FilterContainer>
             <Filter>
               <FilterTitle>Color</FilterTitle>
-              <FilterColor color="black" />
-              <FilterColor color="darkblue" />
-              <FilterColor color="gray" />
+              {product?.color &&
+                product?.color.map((c) => <FilterColor color={c} key={c} />)}
             </Filter>
             <Filter>
               <FilterTitle>Size</FilterTitle>
               <FilterSize>
-                <FilterSizeOption>XS</FilterSizeOption>
-                <FilterSizeOption>S</FilterSizeOption>
-                <FilterSizeOption>M</FilterSizeOption>
-                <FilterSizeOption>L</FilterSizeOption>
-                <FilterSizeOption>XL</FilterSizeOption>
+                {product?.size &&
+                  product?.size.map((s) => (
+                    <FilterSizeOption key={s}>{s}</FilterSizeOption>
+                  ))}
               </FilterSize>
             </Filter>
           </FilterContainer>
           <AddContainer>
             <AmountContainer>
-              <Remove />
-              <Amount>1</Amount>
-              <Add />
+              <Remove onClick={() => handleQuantity("decrease")} />
+              <Amount>{quantity}</Amount>
+              <Add onClick={() => handleQuantity("increase")} />
             </AmountContainer>
             <Button>ADD TO CART</Button>
           </AddContainer>
