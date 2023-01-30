@@ -11,8 +11,6 @@ import { useEffect } from "react";
 import { userRequest } from "../requestMethods";
 import { useNavigate } from "react-router-dom";
 
-const KEY = process.env.REACT_APP_STRIPE;
-
 const Container = styled.div``;
 
 const Wrapper = styled.div`
@@ -256,7 +254,7 @@ const Cart = () => {
               description={`Your total is $${cart.total}`}
               amount={cart.total * 100}
               token={onToken}
-              stripeKey={KEY}
+              stripeKey={process.env.REACT_APP_STRIPE}
             >
               <Button>CHECKOUT NOW</Button>
             </StripeCheckout>

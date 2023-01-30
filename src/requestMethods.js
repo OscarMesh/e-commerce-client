@@ -1,8 +1,9 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:5000/api/";
-const TOKEN =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjYzYWFhMjUxNDc0OGVhZjJkNjQwMDJkYiIsImlzQWRtaW4iOnRydWUsImlhdCI6MTY3MzQzODY1MiwiZXhwIjoxNjczNjk3ODUyfQ.oAG5qxrOyPF4k-h7YyEBdVajFR20bNUOzfzuc2jJYfg";
+const BASE_URL = "https://e-commerce-shop-nodejs.onrender.com/";
+const user = JSON.parse(localStorage.getItem("persist:root"))?.user;
+const currentUser = user && JSON.parse(user).currentUser;
+const TOKEN = currentUser?.accessToken;
 export const publicRequest = axios.create({
   baseURL: BASE_URL,
 });
